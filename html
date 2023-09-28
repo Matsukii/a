@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC Audio Transfer</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/webrtc"></script>
+</head>
+<body>
+  <div id="app">
+    <select v-model="sourceDevice">
+      <option value="pc">PC</option>
+      <option value="phone">Phone</option>
+    </select>
+    <button v-on:click="startAudioTransfer()">Start Audio Transfer</button>
+  </div>
+
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          sourceDevice: 'pc',
+          audioStream: null,
+          peerConnection: null,
+        }
+      },
+      methods: {
+        startAudioTransfer() {
+          // Create a new peer connection.
+          this.peerConnection = new RTCPeerConnection();
+
+          // Create a new audio stream.
+          this.audioStream = new MediaStream();
+          navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+            this.audioStream = stream;
+            this.peerConnection.addTrack(this.audioStream.getAudioTracks()[0]);
+          });
+
+          // Create an SDP offer.
+          this.peerConnection.createOffer().then(offer => {
+            // Set the local description.
+            this.peerConnection.setLocalDescription(offer);
+
+            // Send the offer to the other device.
+            // (This is where you would implement your own signaling mechanism.)
+          });
+        },
+      },
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+</html>
